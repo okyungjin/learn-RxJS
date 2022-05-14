@@ -49,7 +49,7 @@ fetchInitialData((error, data) => {
 
 검색창에서 많이 볼 수 있는 Auto Complete와 같은 기능에는 취소가 필요하다.
 
-<img width="870" height="350" alt="auto-complete" src="https://user-images.githubusercontent.com/31913666/168423189-e6184994-cb6c-4480-bb41-4dfcd99850c4.png">
+<img width="700" height="400" alt="auto-complete" src="https://user-images.githubusercontent.com/31913666/168423189-e6184994-cb6c-4480-bb41-4dfcd99850c4.png">
 
 <br>
 
