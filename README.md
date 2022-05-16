@@ -14,6 +14,8 @@
   - [Observable 생성을 도와주는 유틸리티](#observable-생성을-도와주는-유틸리티)
     - [Observable.of](#observableof)
     - [Observable.from](#observablefrom)
+- [Observable Composition](#observable-composition)
+  - [Make Chainable](#make-chainable)
 
 # 왜 Observable이 필요한가?
 ## 비동기를 다루는 기존 방식의 문제점
@@ -199,4 +201,54 @@ Iterable이나 다른 Observable로부터 새로운 Observable을 생성한다.
 ```ts
 Observable.from([1, 2, 3]);
 Observable.from(otherObservable);
+```
+
+
+# Observable Composition
+Obseravble의 가장 강력한 점은 **composable하다**는 것이다. Observable을 변형하여 다른 Observable을 쉽게 생성할 수 있다.
+
+```ts
+import { Observable } from 'rxjs';
+
+function transform(prev: Observable<number>): Observable<string>;
+
+function transform(prev) {
+  return new Observable(subscriber => {
+    prev.subscribe(
+      value => subscriber.next(`값은 ${value} 입니다.`),
+      error => subscriber.error(error),
+      complete => subscriber.complete(),
+    );
+  });
+}
+
+transform(Observable.from([1, 2, 3]))
+  .subscribe(value => console.log(value));
+
+// 값은 1 입니다.
+// 값은 2 입니다.
+// 값은 3 입니다.
+```
+
+## Make Chainable
+```ts
+import { Observable } from 'rxjs';
+
+Observable.prototype.map = mapFn => {
+  const source = this;
+
+  return new Observable(subscriber => {
+    source.subscribe(
+      value => subscriber.next(mapFn(value)),
+      error => subscriber.error(error),
+      () => subscriber.complete(),
+    );
+  });
+}
+
+// make chainable
+Observable
+  .from([1, 2, 3])  
+  .map(x => x * 2)
+  .subscribe(value => console.log(value));
 ```
