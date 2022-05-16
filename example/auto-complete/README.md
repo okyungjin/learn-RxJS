@@ -4,7 +4,16 @@
   - [비동기를 다루는 기존 방식의 문제점](#비동기를-다루는-기존-방식의-문제점)
     - [1) Callbacks](#1-callbacks)
     - [2) Promises](#2-promises)
-- [Observable이란?](#observable이란)
+- [Observable의 특징](#observable의-특징)
+- [Observable 가볍게 살펴보기](#observable-가볍게-살펴보기)
+  - [Observable 구독](#observable-구독)
+  - [Observable 구독 취소](#observable-구독-취소)
+  - [Observable 생성](#observable-생성)
+  - [Observable 오류 처리](#observable-오류-처리)
+  - [Obseravable Cleanup](#obseravable-cleanup)
+  - [Observable 생성을 도와주는 유틸리티](#observable-생성을-도와주는-유틸리티)
+    - [Observable.of](#observableof)
+    - [Observable.from](#observablefrom)
 
 # 왜 Observable이 필요한가?
 ## 비동기를 다루는 기존 방식의 문제점
@@ -61,7 +70,7 @@ fetchInitialData((error, data) => {
 > 이러한 로직에서 비동기 요청에 대한 취소가 필요하며, **Observable**을 사용하면 이를 구현할 수 있다.
 
 
-# Observable이란?
+# Observable의 특징
 Observable의 특징은 다음과 같다.
 
 - 비동기 이벤트로 발생하는 **여러 데이터**를 다루는 인터페이스
@@ -69,3 +78,125 @@ Observable의 특징은 다음과 같다.
 - 취소 가능
 - 비동기 흐름을 쉽게 읽을 수 있음
 
+
+# Observable 가볍게 살펴보기
+Observable은 비동기 값을 받기위해 `구독` 이라는 개념을 사용한다.
+```ts
+import { Observable } from 'rxjs';
+
+let observable: Observable<any>;
+```
+
+## Observable 구독
+2번 방법은 deprecated 되었으니 1번 방법으로 Observable을 구독한다.
+```ts
+// Observable subscribe 방법 1
+const observer = {
+  next: value => console.log('next', value),
+  error: err => console.error('error', err),
+  complete: () => console.info('complete')
+};
+observable.subscribe(observer); // Observable 구독
+
+
+// Observable subscribe 방법 2 -- deprecated
+observable.subscribe(
+  value => console.log('next', value),
+  err => console.error('error', err),
+  () => console.info('complete')
+);
+```
+
+## Observable 구독 취소
+Observable에 `subscribe` 메서드를 사용하면 subscription 인터페이스가 반환되는데, 여기에 `unsubscribe()` 를 호출하면 구독이 취소된다.
+
+```ts
+const subscription = observable.subscribe(observer);
+subscription.unsubscribe();
+```
+
+## Observable 생성
+```ts
+const ob = new Observable(subscriber => {
+  subscriber.next('0');
+  subscriber.next('1');
+  subscriber.next('2');
+  subscriber.complete();
+});
+
+ob.subscribe({
+  next: value => console.log(`값 ${value}`),
+  complete: () => console.log('✅')
+});
+
+// 값: 0
+// 값: 1
+// 값: 2
+// ✅
+```
+
+## Observable 오류 처리
+Observable의 오류 처리는 error callback을 사용한다.
+Observable에서 오류가 발생하면 구독자에게 에러를 전달하고, **Observable은 즉시 종료된다**. 따라서 **에러 이하의 값은 흐르지 않는다**.
+
+```ts
+const ob = new Observable(subscriber => {
+  subscriber.next('0');
+  subscriber.next('1');
+  subscriber.next('2');
+  subscriber.error('💀'); // 구독자에게 에러 전달
+
+  subscriber.next('값이');
+  subscriber.next('더 이상');
+  subscriber.next('흐르지 않아요.');
+});
+
+ob.subscribe({
+  next: value => console.log(`값 ${value}`),
+  error: error => console.log(error),
+  complete: () => console.log('✅')
+});
+
+// 값: 0
+// 값: 1
+// 값: 2
+// 💀
+```
+
+## Obseravable Cleanup 
+Observable을 생성할 때 return 값을 반환하면 이것이 cleanup function이 된다.
+`unsubscribe()` 를 실행하면 반환된 cleanup function이 실행된다.
+
+Evnet Listener 해지 또는 Ajax abort 등에 사용하면 유용하다.
+
+```ts
+const ob = new Observable(subscriber => {
+  subscriber.next('0');
+  subscriber.next('1');
+  subscriber.next('2');
+  subscriber.complete();
+
+  return () => console.log('Cleanup!');
+});
+
+const subscription = ob.subscribe();
+subscription.unsubscribe();
+
+// Cleanup!
+```
+
+## Observable 생성을 도와주는 유틸리티
+### Observable.of
+입력 받은 인자로 Observable을 생성한다.
+
+```ts
+Observable.of('hello');
+Observable.of(1, 2, 3);
+```
+
+### Observable.from
+Iterable이나 다른 Observable로부터 새로운 Observable을 생성한다.
+```ts
+Observable.from([1, 2, 3]);
+Observable.from(otherObservable);
+```
