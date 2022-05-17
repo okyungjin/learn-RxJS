@@ -1,0 +1,26 @@
+{
+  "name": "learn-rxjs",
+  "version": "1.0.0",
+  "description": "- [Table of Contents](#table-of-contents) - [왜 Observable이 필요한가?](#왜-observable이-필요한가)   - [비동기를 다루는 기존 방식의 문제점](#비동기를-다루는-기존-방식의-문제점)     - [1) Callbacks](#1-callbacks)     - [2) Promises](#2-promises) - [Observable의 특징](#observable의-특징) - [Observable 가볍게 살펴보기](#observable-가볍게-살펴보기)   - [Observable 구독](#observable-구독)   - [Observable 구독 취소](#observable-구독-취소)   - [Observable 생성](#observable-생성)   - [Observable 오류 처리](#observable-오류-처리)   - [Obseravable Cleanup](#obseravable-cleanup)   - [Observable 생성을 도와주는 유틸리티](#observable-생성을-도와주는-유틸리티)     - [Observable.of](#observableof)     - [Observable.from](#observablefrom) - [Observable Composition](#observable-composition)   - [Make Chainable](#make-chainable)   - [Observable Composition이 강력한 이유](#observable-composition이-강력한-이유)",
+  "main": "observable.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/okyungjin/learn-RxJS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/okyungjin/learn-RxJS/issues"
+  },
+  "homepage": "https://github.com/okyungjin/learn-RxJS#readme",
+  "dependencies": {
+    "rxjs": "^7.5.5"
+  }
+}
