@@ -1,3 +1,5 @@
+> 본 README는 YouTube의 [[Track 2-2] 나석주 - 비동기를 우아하게 처리하기 위한 Observable](https://youtu.be/oHF8PEkteq0) 세미나의 내용을 정리한 글입니다.
+
 # Table of Contents
 - [Table of Contents](#table-of-contents)
 - [왜 Observable이 필요한가?](#왜-observable이-필요한가)
