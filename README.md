@@ -16,6 +16,9 @@
     - [Observable.from](#observablefrom)
 - [Observable Composition](#observable-composition)
   - [Make Chainable](#make-chainable)
+  - [Observable Composition이 강력한 이유](#observable-composition이-강력한-이유)
+- [Observable 지금 사용할 수 있나요?](#observable-지금-사용할-수-있나요)
+- [RxJS 라이브러리](#rxjs-라이브러리)
 
 # 왜 Observable이 필요한가?
 ## 비동기를 다루는 기존 방식의 문제점
@@ -252,3 +255,76 @@ Observable
   .map(x => x * 2)
   .subscribe(value => console.log(value));
 ```
+
+## Observable Composition이 강력한 이유
+Observable Composition의 큰 장점은 **비동기의 흐름을 쉽게 제어할 수 있다**는 점이다.
+
+버튼의 더블 클릭을 감지하여 `더블 클릭!` 을 출력하는 함수를 작성해보자.
+`Observable 미사용`
+```js
+let clicks = 0;
+let timeoutId;
+
+function handleClick() {
+  clicks += 1;
+
+  if (!timeoutId) {
+    timeoutId = setTimeout(() => {
+      timeoutId = null;
+      clicks = 0;
+    }, 400);
+    return;
+  }
+
+  clearTimeout(timeoutId);
+
+  if (clicks <= 2) {
+    timeoutId = setTimeout(() => {
+      timeoutId = null;
+      clicks = 0;
+      console.log('더블 클릭!')
+    }, 400);
+  } else {
+    timeoutId = setTimeout(() => {
+      timeoutId = null;
+      clicks = 0;
+    }, 400);
+  }
+}
+
+button.addEventListener('click', handleClick);
+```
+
+`Observable 사용`
+Observable을 사용하면 간단하게 작성할 수 있으며, 단순하게 코드만 짧아지는 것이 아니라 동작을 한 눈에 파악하기 쉽다. (쾌감 👍)
+
+> 비동기의 흐름을 선언적으로 작성할 수 있다는 점이 Observable의 큰 장점이다!
+
+```ts
+const button = document.getElementById('btn');
+const clicks = fromEvent(button, 'click');
+
+clicks
+  .buffer(clicks.throttleTime(400))
+  .map(events => events.length)
+  .filter(count => count === 2)
+  .subscribe(() => console.log('더블 클릭!'));
+```
+
+# Observable 지금 사용할 수 있나요?
+Observable을 모던 브라우저에서 사용할 수 있나요? 라고 묻는다면 답은 **No 🤚**이다.
+아쉽게도 스펙이 아직 Draft 상태이며, [tc39 proposal]((https://tc39.es/proposal-observable/))의 stage1에 있다.
+
+표준 스펙은 아니지만, RxJS 라이브러리를 사용하면 Observable을 바로 사용할 수 있다.
+
+> **🗣 나석주님 강의 내용**
+> 
+> tc39 proposal에 stage1에 있습니다. 처음 발의된지 4년이 지났는데, 아직도 stage1인 것 보면 표준 스펙으로의 승격은 포기하는게 빠르지 않을까.. 하지만 표준 스펙이 아니면 저희는 라이브러리를 사용하면 됩니다.
+
+> 본 영상이 2019.11.18 기준인데 작성 시점인 2022.05.17 기준으로도 Draft 상태인 것 같다.
+
+# RxJS 라이브러리
+- Observable 구현체 제공
+- Composition 및 생성 유틸리티 제공 (a.k.a operator)
+  - Composition할 때마다 새로운 Observable을 생성시켰는데, operator를 실행할 때마다 새로운 Observable이 생성되면 성능적인 이슈가 발생한다. **RxJS는 Observable을 재사용 하여 성능적 이슈를 감소시킨다.**
+- Scheduling
